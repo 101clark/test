@@ -45,19 +45,33 @@
         return;
       }
 
-      // For now, just simulate conversion until backend is connected
-      const fakeLatex = `
-      \\documentclass[${layout}]{article}
-      \\begin{document}
-      \\title{Sample Conversion}
-      \\maketitle
-      This is a placeholder LaTeX output.
-      \\end{document}
-      `;
+      // Read file as text and encode to base64
+      const reader = new FileReader();
+      reader.onload = async function() {
+        const base64Content = btoa(reader.result);
 
-      document.getElementById('latexOutput').value = fakeLatex;
-      document.getElementById('preview').innerText = fakeLatex;
-      MathJax.typesetPromise();
+        try {
+          const response = await fetch(
+            "https://rpypagda25.execute-api.us-east-1.amazonaws.com/convertToLatex/convertToLatex?layout=" + layout,
+            {
+              method: "POST",
+              headers: { "Content-Type": "text/plain" },
+              body: base64Content
+            }
+          );
+
+          const result = await response.json();
+          const latex = result.latex || result.answer || "No LaTeX received";
+
+          document.getElementById('latexOutput').value = latex;
+          document.getElementById('preview').innerText = latex;
+          MathJax.typesetPromise();
+        } catch (err) {
+          console.error("Error calling Lambda:", err);
+          alert("Failed to convert document.");
+        }
+      };
+      reader.readAsText(file); // For now, treat file as plain text
     }
   </script>
 </body>

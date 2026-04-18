@@ -11,7 +11,7 @@
   <script>
     document.getElementById("callLambda").addEventListener("click", async () => {
       try {
-        const res = await fetch("YOUR_API_GATEWAY_URL");
+        const res = await fetch("https://a4tr6kav92.execute-api.us-east-1.amazonaws.com/testAPIStage/callHelloLambda");
         const data = await res.text();
         document.getElementById("response").innerText = data;
       } catch (err) {

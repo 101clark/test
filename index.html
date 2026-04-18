@@ -74,7 +74,7 @@
         const textContent = new TextDecoder().decode(e.target.result);
 
         // Split into chunks
-        const MAX_CHARS = 5000;
+        const MAX_CHARS = 50000;
         const chunks = [];
         for (let i = 0; i < textContent.length; i += MAX_CHARS) {
           chunks.push(textContent.slice(i, i + MAX_CHARS));

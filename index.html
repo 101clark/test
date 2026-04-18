@@ -36,6 +36,17 @@
   <div id="preview">Rendered LaTeX preview will appear here...</div>
 
   <script>
+    // Helper: convert ArrayBuffer to base64 safely
+    function arrayBufferToBase64(buffer) {
+      let binary = '';
+      const bytes = new Uint8Array(buffer);
+      const len = bytes.byteLength;
+      for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binary);
+    }
+
     async function uploadFile() {
       const file = document.getElementById('fileUpload').files[0];
       const layout = document.getElementById('layout').value;
@@ -45,10 +56,9 @@
         return;
       }
 
-      // Read file as text and encode to base64
       const reader = new FileReader();
-      reader.onload = async function() {
-        const base64Content = btoa(reader.result);
+      reader.onload = async function(e) {
+        const base64Content = arrayBufferToBase64(e.target.result);
 
         try {
           const response = await fetch(
@@ -71,7 +81,7 @@
           alert("Failed to convert document.");
         }
       };
-      reader.readAsText(file); // For now, treat file as plain text
+      reader.readAsArrayBuffer(file); // Read file as binary buffer
     }
   </script>
 </body>

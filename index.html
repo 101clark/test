@@ -31,7 +31,7 @@
   <button onclick="uploadFile()">Convert</button>
 
   <h2>LaTeX Output</h2>
-  <textarea id="latexOutput" rows="20" cols="80" placeholder="Converted LaTeX will appear here..."></textarea>
+  <textarea id="latexOutput" rows="20" cols="80"></textarea>
   <div class="buttons">
     <button onclick="copyLatex()">Copy to Clipboard</button>
     <button onclick="downloadLatex()">Download .tex</button>
@@ -41,9 +41,8 @@
   <div id="preview">Rendered LaTeX preview will appear here...</div>
 
   <script>
-    let uploadedFileName = "document.txt"; // default
+    let uploadedFileName = "document.txt";
 
-    // Helper: convert ArrayBuffer to base64 safely
     function arrayBufferToBase64(buffer) {
       let binary = '';
       const bytes = new Uint8Array(buffer);
@@ -79,20 +78,15 @@
           );
 
           const result = await response.json();
-          let latex = result.latex || result.answer || "No LaTeX received";
+          let latex = result.latex || result.answer || "";
 
-          // Clean up: remove explanatory text and code fences if present
-          latex = latex.replace(/```latex/g, "")
-                       .replace(/```/g, "")
-                       .replace(/Here's[\s\S]*?```/, "")
-                       .trim();
-
+          // Directly use LaTeX since Lambda now returns only valid code
           document.getElementById('latexOutput').value = latex;
 
           // Render with latex.js
           try {
             const generator = new latexjs.HtmlGenerator({ hyphenate: false });
-            latexjs.parse(latex, { generator: generator });
+            latexjs.parse(latex, { generator });
             document.getElementById('preview').innerHTML = generator.domFragment().innerHTML;
           } catch (renderErr) {
             console.error("Render error:", renderErr);
@@ -103,7 +97,7 @@
           alert("Failed to convert document.");
         }
       };
-      reader.readAsArrayBuffer(file); // Read file as binary buffer
+      reader.readAsArrayBuffer(file);
     }
 
     function copyLatex() {

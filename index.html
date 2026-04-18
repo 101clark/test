@@ -87,7 +87,10 @@
           try {
             const generator = new latexjs.HtmlGenerator({ hyphenate: false });
             latexjs.parse(latex, { generator });
-            document.getElementById('preview').innerHTML = generator.domFragment().innerHTML;
+
+            const preview = document.getElementById('preview');
+            preview.innerHTML = "";
+            preview.appendChild(generator.domFragment());
           } catch (renderErr) {
             console.error("Render error:", renderErr);
             document.getElementById('preview').innerText = "Preview failed. Please copy LaTeX into Overleaf or pdflatex.";

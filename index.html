@@ -54,6 +54,7 @@
       document.getElementById("convertBtn").disabled = !enabled;
       document.getElementById("copyBtn").disabled = !enabled;
       document.getElementById("downloadBtn").disabled = !enabled;
+      document.getElementById("fileUpload").disabled = !enabled; // disable/enable file input too
     }
 
     async function uploadFile() {
@@ -69,6 +70,9 @@
       // Disable buttons and show status
       setButtonsEnabled(false);
       document.getElementById("status").innerText = "Converting… please wait.";
+
+      // Clear LaTeX output immediately
+      document.getElementById('latexOutput').value = "";
 
       const reader = new FileReader();
       reader.onload = async function(e) {

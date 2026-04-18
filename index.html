@@ -1,41 +1,64 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Lambda Test</title>
+  <meta charset="UTF-8">
+  <title>Document to LaTeX</title>
+  <!-- MathJax for LaTeX rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    h1 { color: #333; }
+    select, input, button { margin: 10px 0; padding: 8px; }
+    textarea { width: 100%; margin-top: 20px; }
+    #preview { border: 1px solid #ccc; padding: 20px; margin-top: 20px; }
+  </style>
 </head>
 <body>
-  <h1>Lambda Test App</h1>
-  <input type="text" id="questionInput" placeholder="Enter your question" />
-  <button id="callLambda">Ask Lambda</button>
-  <pre id="response"></pre>
+  <h1>Document to LaTeX</h1>
+
+  <label for="layout">Choose Layout:</label>
+  <select id="layout">
+    <option value="article">Article</option>
+    <option value="report">Report</option>
+    <option value="book">Book</option>
+    <option value="twocolumn">Two Column</option>
+    <option value="beamer">Beamer Presentation</option>
+  </select>
+
+  <br><br>
+  <input type="file" id="fileUpload" />
+  <button onclick="uploadFile()">Convert</button>
+
+  <h2>LaTeX Output</h2>
+  <textarea id="latexOutput" rows="20" cols="80" placeholder="Converted LaTeX will appear here..."></textarea>
+
+  <h2>Preview</h2>
+  <div id="preview">Rendered LaTeX preview will appear here...</div>
 
   <script>
-    document.getElementById("callLambda").addEventListener("click", async () => {
-      const question = document.getElementById("questionInput").value.trim();
+    async function uploadFile() {
+      const file = document.getElementById('fileUpload').files[0];
+      const layout = document.getElementById('layout').value;
 
-      if (!question) {
-        document.getElementById("response").innerText = "Error: Please enter a question.";
+      if (!file) {
+        alert("Please upload a document first.");
         return;
       }
 
-      try {
-        const res = await fetch(
-          "https://a4tr6kav92.execute-api.us-east-1.amazonaws.com/testAPIStage/callHelloLambda?question=" + encodeURIComponent(question)
-        );
+      // For now, just simulate conversion until backend is connected
+      const fakeLatex = `
+      \\documentclass[${layout}]{article}
+      \\begin{document}
+      \\title{Sample Conversion}
+      \\maketitle
+      This is a placeholder LaTeX output.
+      \\end{document}
+      `;
 
-        // Lambda already returns JSON directly
-        const data = await res.json();
-
-        if (data.error) {
-          document.getElementById("response").innerText = "Error: " + data.error;
-        } else {
-          document.getElementById("response").innerText =
-            `Q: ${data.question}\nA: ${data.answer}\n(${data.timestamp})`;
-        }
-      } catch (err) {
-        document.getElementById("response").innerText = "Error calling Lambda: " + err;
-      }
-    });
+      document.getElementById('latexOutput').value = fakeLatex;
+      document.getElementById('preview').innerText = fakeLatex;
+      MathJax.typesetPromise();
+    }
   </script>
 </body>
 </html>

@@ -23,7 +23,13 @@
           "https://a4tr6kav92.execute-api.us-east-1.amazonaws.com/testAPIStage/callHelloLambda?question=" + encodeURIComponent(question)
         );
         const data = await res.json();   // parse JSON
-        document.getElementById("response").innerText = data.body;  // show only body
+
+        if (data.error) {
+          document.getElementById("response").innerText = "Error: " + data.error;
+        } else {
+          document.getElementById("response").innerText =
+            `Q: ${data.question}\nA: ${data.answer}\n(${data.timestamp})`;
+        }
       } catch (err) {
         document.getElementById("response").innerText = "Error calling Lambda: " + err;
       }

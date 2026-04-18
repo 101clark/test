@@ -66,15 +66,18 @@
         const textContent = new TextDecoder().decode(e.target.result);
 
         // Split into chunks
-        const MAX_CHARS = 10000;
+        const MAX_CHARS = 5000; // smaller to force multiple requests
         const chunks = [];
         for (let i = 0; i < textContent.length; i += MAX_CHARS) {
           chunks.push(textContent.slice(i, i + MAX_CHARS));
         }
 
+        console.log(`Total chunks: ${chunks.length}`);
+
         let latexParts = [];
 
         for (let idx = 0; idx < chunks.length; idx++) {
+          console.log(`Sending chunk ${idx+1}/${chunks.length}, length=${chunks[idx].length}`);
           document.getElementById("status").innerText = `Processing chunk ${idx+1}/${chunks.length}…`;
 
           const base64Content = btoa(chunks[idx]);

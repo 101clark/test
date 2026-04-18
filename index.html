@@ -22,7 +22,12 @@
         const res = await fetch(
           "https://a4tr6kav92.execute-api.us-east-1.amazonaws.com/testAPIStage/callHelloLambda?question=" + encodeURIComponent(question)
         );
-        const data = await res.json();   // parse JSON
+
+        // First parse the outer Lambda response
+        const outer = await res.json();
+
+        // Then parse the inner body string
+        const data = JSON.parse(outer.body);
 
         if (data.error) {
           document.getElementById("response").innerText = "Error: " + data.error;

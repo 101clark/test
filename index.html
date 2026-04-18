@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My OpenAPI App</title>
+</head>
+<body>
+  <h1>Test App</h1>
+  <button id="callLambda">Call Lambda</button>
+  <p id="response"></p>
+
+  <script>
+    document.getElementById("callLambda").addEventListener("click", async () => {
+      const res = await fetch("YOUR_API_GATEWAY_URL");
+      const data = await res.text();
+      document.getElementById("response").innerText = data;
+    });
+  </script>
+</body>
+</html>

@@ -5,25 +5,25 @@
 </head>
 <body>
   <h1>Lambda Test App</h1>
-  <input type="text" id="nameInput" placeholder="Enter your name" />
-  <button id="callLambda">Call Lambda</button>
+  <input type="text" id="questionInput" placeholder="Enter your question" />
+  <button id="callLambda">Ask Lambda</button>
   <p id="response"></p>
 
   <script>
     document.getElementById("callLambda").addEventListener("click", async () => {
-      const name = document.getElementById("nameInput").value.trim();
+      const question = document.getElementById("questionInput").value.trim();
 
-      if (!name) {
-        document.getElementById("response").innerText = "Error: Please enter a name.";
+      if (!question) {
+        document.getElementById("response").innerText = "Error: Please enter a question.";
         return;
       }
 
       try {
         const res = await fetch(
-          "https://a4tr6kav92.execute-api.us-east-1.amazonaws.com/testAPIStage/callHelloLambda?name=" + encodeURIComponent(name)
+          "https://a4tr6kav92.execute-api.us-east-1.amazonaws.com/testAPIStage/callHelloLambda?question=" + encodeURIComponent(question)
         );
-        const data = await res.text();
-        document.getElementById("response").innerText = data;
+        const data = await res.json();   // parse JSON
+        document.getElementById("response").innerText = data.body;  // show only body
       } catch (err) {
         document.getElementById("response").innerText = "Error calling Lambda: " + err;
       }

@@ -47,9 +47,12 @@
       document.getElementById("fileUpload").disabled = !enabled;
     }
 
-    // Safe base64 encoder for Unicode
+    // Safe base64 encoder for Unicode strings
     function toBase64Unicode(str) {
-      return btoa(unescape(encodeURIComponent(str)));
+      const utf8Bytes = new TextEncoder().encode(str); // convert to bytes
+      let binary = "";
+      utf8Bytes.forEach(b => binary += String.fromCharCode(b));
+      return btoa(binary); // base64 encode
     }
 
     async function uploadFile() {

@@ -3,15 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>Document to LaTeX</title>
-  <!-- latex.js for full LaTeX rendering -->
-  <script src="https://cdn.jsdelivr.net/npm/latex.js/dist/latex.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 40px; }
     h1 { color: #333; }
     select, input, button { margin: 10px 5px; padding: 8px; }
     textarea { width: 100%; margin-top: 20px; }
-    #preview { border: 1px solid #ccc; padding: 20px; margin-top: 20px; }
     .buttons { margin-top: 10px; }
+    #status { margin-top: 10px; font-style: italic; color: #555; }
   </style>
 </head>
 <body>
@@ -28,17 +26,16 @@
 
   <br><br>
   <input type="file" id="fileUpload" />
-  <button onclick="uploadFile()">Convert</button>
+  <button id="convertBtn" onclick="uploadFile()">Convert</button>
 
   <h2>LaTeX Output</h2>
   <textarea id="latexOutput" rows="20" cols="80"></textarea>
   <div class="buttons">
-    <button onclick="copyLatex()">Copy to Clipboard</button>
-    <button onclick="downloadLatex()">Download .tex</button>
+    <button id="copyBtn" onclick="copyLatex()">Copy to Clipboard</button>
+    <button id="downloadBtn" onclick="downloadLatex()">Download .tex</button>
   </div>
 
-  <h2>Preview</h2>
-  <div id="preview">Rendered LaTeX preview will appear here...</div>
+  <div id="status"></div>
 
   <script>
     let uploadedFileName = "document.txt";
@@ -53,6 +50,12 @@
       return window.btoa(binary);
     }
 
+    function setButtonsEnabled(enabled) {
+      document.getElementById("convertBtn").disabled = !enabled;
+      document.getElementById("copyBtn").disabled = !enabled;
+      document.getElementById("downloadBtn").disabled = !enabled;
+    }
+
     async function uploadFile() {
       const file = document.getElementById('fileUpload').files[0];
       const layout = document.getElementById('layout').value;
@@ -62,6 +65,10 @@
         return;
       }
       uploadedFileName = file.name;
+
+      // Disable buttons and show status
+      setButtonsEnabled(false);
+      document.getElementById("status").innerText = "Converting… please wait.";
 
       const reader = new FileReader();
       reader.onload = async function(e) {
@@ -80,24 +87,15 @@
           const result = await response.json();
           let latex = result.latex || result.answer || "";
 
-          // Put LaTeX in textarea
           document.getElementById('latexOutput').value = latex;
-
-          // Render with latex.js
-          try {
-            const generator = new latexjs.HtmlGenerator({ hyphenate: false });
-            latexjs.parse(latex, { generator });
-
-            const preview = document.getElementById('preview');
-            preview.innerHTML = ""; // clear old content
-            preview.appendChild(generator.domFragment()); // append fragment directly
-          } catch (renderErr) {
-            console.error("Render error:", renderErr);
-            document.getElementById('preview').innerText = "Preview failed. Please copy LaTeX into Overleaf or pdflatex.";
-          }
+          document.getElementById("status").innerText = "Conversion complete.";
         } catch (err) {
           console.error("Error calling Lambda:", err);
           alert("Failed to convert document.");
+          document.getElementById("status").innerText = "Conversion failed.";
+        } finally {
+          // Re-enable buttons
+          setButtonsEnabled(true);
         }
       };
       reader.readAsArrayBuffer(file);

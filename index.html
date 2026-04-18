@@ -47,6 +47,11 @@
       document.getElementById("fileUpload").disabled = !enabled;
     }
 
+    // Safe base64 encoder for Unicode
+    function toBase64Unicode(str) {
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+
     async function uploadFile() {
       const file = document.getElementById('fileUpload').files[0];
       const layout = document.getElementById('layout').value;
@@ -66,7 +71,7 @@
         const textContent = new TextDecoder().decode(e.target.result);
 
         // Split into chunks
-        const MAX_CHARS = 5000; // smaller to force multiple requests
+        const MAX_CHARS = 5000;
         const chunks = [];
         for (let i = 0; i < textContent.length; i += MAX_CHARS) {
           chunks.push(textContent.slice(i, i + MAX_CHARS));
@@ -80,7 +85,7 @@
           console.log(`Sending chunk ${idx+1}/${chunks.length}, length=${chunks[idx].length}`);
           document.getElementById("status").innerText = `Processing chunk ${idx+1}/${chunks.length}…`;
 
-          const base64Content = btoa(chunks[idx]);
+          const base64Content = toBase64Unicode(chunks[idx]);
 
           try {
             const response = await fetch(

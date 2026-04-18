@@ -3,18 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <title>Document to LaTeX</title>
-  <!-- MathJax for LaTeX rendering -->
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <!-- latex.js for full LaTeX rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/latex.js/dist/latex.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 40px; }
     h1 { color: #333; }
-    select, input, button { margin: 10px 0; padding: 8px; }
+    select, input, button { margin: 10px 5px; padding: 8px; }
     textarea { width: 100%; margin-top: 20px; }
     #preview { border: 1px solid #ccc; padding: 20px; margin-top: 20px; }
+    .buttons { margin-top: 10px; }
   </style>
 </head>
 <body>
-  <h1>Document to LaTeX 2</h1>
+  <h1>Document to LaTeX</h1>
 
   <label for="layout">Choose Layout:</label>
   <select id="layout">
@@ -31,11 +32,17 @@
 
   <h2>LaTeX Output</h2>
   <textarea id="latexOutput" rows="20" cols="80" placeholder="Converted LaTeX will appear here..."></textarea>
+  <div class="buttons">
+    <button onclick="copyLatex()">Copy to Clipboard</button>
+    <button onclick="downloadLatex()">Download .tex</button>
+  </div>
 
   <h2>Preview</h2>
   <div id="preview">Rendered LaTeX preview will appear here...</div>
 
   <script>
+    let uploadedFileName = "document.txt"; // default
+
     // Helper: convert ArrayBuffer to base64 safely
     function arrayBufferToBase64(buffer) {
       let binary = '';
@@ -55,10 +62,10 @@
         alert("Please upload a document first.");
         return;
       }
+      uploadedFileName = file.name;
 
       const reader = new FileReader();
       reader.onload = async function(e) {
-        // Convert binary data to base64
         const base64Content = arrayBufferToBase64(e.target.result);
 
         try {
@@ -72,17 +79,50 @@
           );
 
           const result = await response.json();
-          const latex = result.latex || result.answer || "No LaTeX received";
+          let latex = result.latex || result.answer || "No LaTeX received";
+
+          // Clean up: remove explanatory text and code fences if present
+          latex = latex.replace(/```latex/g, "")
+                       .replace(/```/g, "")
+                       .replace(/Here's[\s\S]*?```/, "")
+                       .trim();
 
           document.getElementById('latexOutput').value = latex;
-          document.getElementById('preview').innerText = latex;
-          MathJax.typesetPromise();
+
+          // Render with latex.js
+          try {
+            const generator = new latexjs.HtmlGenerator({ hyphenate: false });
+            latexjs.parse(latex, { generator: generator });
+            document.getElementById('preview').innerHTML = generator.domFragment().innerHTML;
+          } catch (renderErr) {
+            console.error("Render error:", renderErr);
+            document.getElementById('preview').innerText = "Preview failed. Please copy LaTeX into Overleaf or pdflatex.";
+          }
         } catch (err) {
           console.error("Error calling Lambda:", err);
           alert("Failed to convert document.");
         }
       };
       reader.readAsArrayBuffer(file); // Read file as binary buffer
+    }
+
+    function copyLatex() {
+      const latex = document.getElementById('latexOutput').value;
+      navigator.clipboard.writeText(latex).then(() => {
+        alert("LaTeX copied to clipboard!");
+      });
+    }
+
+    function downloadLatex() {
+      const latex = document.getElementById('latexOutput').value;
+      let baseName = uploadedFileName.split('.').slice(0, -1).join('.') || uploadedFileName;
+      const texFileName = baseName + ".tex";
+
+      const blob = new Blob([latex], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = texFileName;
+      link.click();
     }
   </script>
 </body>

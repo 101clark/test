@@ -7,7 +7,7 @@
   <h1>Lambda Test App</h1>
   <input type="text" id="questionInput" placeholder="Enter your question" />
   <button id="callLambda">Ask Lambda</button>
-  <pre id="response"></pre> 
+  <pre id="response"></pre>
 
   <script>
     document.getElementById("callLambda").addEventListener("click", async () => {
@@ -23,7 +23,7 @@
           "https://a4tr6kav92.execute-api.us-east-1.amazonaws.com/testAPIStage/callHelloLambda?question=" + encodeURIComponent(question)
         );
 
-
+        // Lambda already returns JSON directly
         const data = await res.json();
 
         if (data.error) {

@@ -7,7 +7,7 @@
   <h1>Lambda Test App</h1>
   <input type="text" id="questionInput" placeholder="Enter your question" />
   <button id="callLambda">Ask Lambda</button>
-  <pre id="response"></pre> <!-- use <pre> for nicer formatting -->
+  <pre id="response"></pre> 
 
   <script>
     document.getElementById("callLambda").addEventListener("click", async () => {
@@ -23,11 +23,8 @@
           "https://a4tr6kav92.execute-api.us-east-1.amazonaws.com/testAPIStage/callHelloLambda?question=" + encodeURIComponent(question)
         );
 
-        // First parse the outer Lambda response
-        const outer = await res.json();
 
-        // Then parse the inner body string
-        const data = JSON.parse(outer.body);
+        const data = await res.json();
 
         if (data.error) {
           document.getElementById("response").innerText = "Error: " + data.error;

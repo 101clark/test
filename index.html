@@ -74,13 +74,25 @@
         const textContent = new TextDecoder().decode(e.target.result);
 
         // Split into chunks
-        const MAX_CHARS = 100000;
-        const chunks = [];
-        for (let i = 0; i < textContent.length; i += MAX_CHARS) {
-          chunks.push(textContent.slice(i, i + MAX_CHARS));
-        }
+        //const MAX_CHARS = 100000;
+        //const chunks = [];
+        //for (let i = 0; i < textContent.length; i += MAX_CHARS) {
+        //  chunks.push(textContent.slice(i, i + MAX_CHARS));
+        //}
 
+        //console.log(`Total chunks: ${chunks.length}`);
+
+        // Split into chunks by words instead of characters
+        const MAX_WORDS = 100000; // adjust as needed
+        const words = textContent.split(/\s+/); // split by whitespace
+        const chunks = [];
+        
+        for (let i = 0; i < words.length; i += MAX_WORDS) {
+          chunks.push(words.slice(i, i + MAX_WORDS).join(" "));
+        }
+        
         console.log(`Total chunks: ${chunks.length}`);
+
 
         let latexParts = [];
 
